@@ -3,7 +3,6 @@ package app
 import (
 	"SmartBuilding/internal/errorMessage"
 	"errors"
-	"math"
 )
 
 type VariableCapacity struct {
@@ -13,10 +12,7 @@ type VariableCapacity struct {
 }
 
 func NewVariableCapacity(aNumberOfDays int, initialCapacity, regularCapacity float64) *VariableCapacity {
-	if initialCapacity < regularCapacity {
-		panic(errors.New(errorMessage.InvalidCapacitiesErrorMessage))
-	}
-
+	assertValidCapacities(initialCapacity, regularCapacity)
 	vc := new(VariableCapacity)
 	vc.initialDays = aNumberOfDays
 	vc.initialCapacity = initialCapacity
@@ -25,13 +21,19 @@ func NewVariableCapacity(aNumberOfDays int, initialCapacity, regularCapacity flo
 }
 
 func (fc VariableCapacity) DaysToComplete(anArea float64) int {
-	daysToCompleteUsingInitialCapacity := int(math.Ceil(anArea / fc.initialCapacity))
-	if daysToCompleteUsingInitialCapacity < fc.initialDays {
+	daysToCompleteUsingInitialCapacity := FullAreaDivision(anArea, fc.initialCapacity)
+	if daysToCompleteUsingInitialCapacity <= fc.initialDays {
 		return daysToCompleteUsingInitialCapacity
 	}
 
 	remainingArea := anArea - (fc.initialCapacity * float64(fc.initialDays))
-	daysToCompleteUsingRegularCapacity := int(math.Ceil(remainingArea / fc.regularCapacity))
+	daysToCompleteUsingRegularCapacity := FullAreaDivision(remainingArea, fc.regularCapacity)
 
 	return fc.initialDays + daysToCompleteUsingRegularCapacity
+}
+
+func assertValidCapacities(initialCapacity float64, regularCapacity float64) {
+	if initialCapacity < regularCapacity {
+		panic(errors.New(errorMessage.InvalidCapacitiesErrorMessage))
+	}
 }

@@ -12,11 +12,7 @@ type VariablePrice struct {
 }
 
 func NewVariablePrice(aRegularPrice, aRainingPrice int, aService MeteorologicalService) *VariablePrice {
-
-	if aRegularPrice > aRainingPrice {
-		panic(errors.New(errorMessage.InvalidRainingPrice))
-	}
-
+	assertValidPrices(aRegularPrice, aRainingPrice)
 	vp := new(VariablePrice)
 	vp.regularDailyPrice = aRegularPrice
 	vp.rainingDailyPrice = aRainingPrice
@@ -28,4 +24,10 @@ func (vp VariablePrice) PriceForWorking(aNumberOfDays int) int {
 	rainingDays := vp.meteorologicalService.RainingDayAmongTheNext(aNumberOfDays)
 	regularDays := aNumberOfDays - rainingDays
 	return (rainingDays * vp.rainingDailyPrice) + (regularDays * vp.regularDailyPrice)
+}
+
+func assertValidPrices(aRegularPrice int, aRainingPrice int) {
+	if aRegularPrice > aRainingPrice {
+		panic(errors.New(errorMessage.InvalidRainingPrice))
+	}
 }
