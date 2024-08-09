@@ -2,10 +2,10 @@ package app
 
 type ConcreteTeam struct {
 	capacity Capacity
-	price    *FixedPrice
+	price    Price
 }
 
-func NewConcreteTeam(aCapacity Capacity, aPrice *FixedPrice) *ConcreteTeam {
+func NewConcreteTeam(aCapacity Capacity, aPrice Price) *ConcreteTeam {
 	ct := new(ConcreteTeam)
 	ct.capacity = aCapacity
 	ct.price = aPrice
