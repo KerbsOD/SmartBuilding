@@ -13,11 +13,14 @@ func NewConcreteTeam(aCapacity Capacity, aPrice Price) *ConcreteTeam {
 }
 
 func (ct *ConcreteTeam) DaysToBuild(anArea float64) int {
-	return ct.capacity.DaysToComplete(anArea)
+	daysToFillArea := ct.capacity.DaysToComplete(anArea)
+	return daysToFillArea
 }
 
 func (ct *ConcreteTeam) PriceToBuild(anArea float64) int {
-	return ct.price.PriceForWorking(ct.DaysToBuild(anArea))
+	daysToFillArea := ct.DaysToBuild(anArea)
+	priceToWorkANumberOfDays := ct.price.PriceForWorking(daysToFillArea)
+	return priceToWorkANumberOfDays
 }
 
 func (ct *ConcreteTeam) AddTeamTo(aCollector *[]Team) {

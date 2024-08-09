@@ -18,13 +18,16 @@ func NewCombinedTeam(teams []Team) *CombinedTeam {
 }
 
 func (ct *CombinedTeam) DaysToBuild(anArea float64) int {
-	return generics.MaxMapped(ct.teams, func(team Team) int { return team.DaysToBuild(ct.subteamEqualArea(anArea)) })
+	anEqualAreaPerTeam := ct.areaDividedQuantityOfTeamMembers(anArea)
+	maxDaysToBuild := ct.maxDaysToBuildTheSameAreaBetweenSubteams(anEqualAreaPerTeam)
+	return maxDaysToBuild
 }
 
 func (ct *CombinedTeam) PriceToBuild(anArea float64) int {
+	equalArea := ct.areaDividedQuantityOfTeamMembers(anArea)
 	totalPrice := 0
 	for _, team := range ct.teams {
-		totalPrice = totalPrice + team.PriceToBuild(ct.subteamEqualArea(anArea))
+		totalPrice = totalPrice + team.PriceToBuild(equalArea)
 	}
 	return totalPrice
 }
@@ -37,29 +40,39 @@ func (ct *CombinedTeam) AddTeamTo(aCollector *[]Team) {
 
 func (ct *CombinedTeam) DisplayTimesToBuildOn(timesToBuild map[*ConcreteTeam]int, anArea float64) {
 	for _, team := range ct.teams {
-		team.DisplayTimesToBuildOn(timesToBuild, ct.subteamEqualArea(anArea))
+		team.DisplayTimesToBuildOn(timesToBuild, ct.areaDividedQuantityOfTeamMembers(anArea))
 	}
 }
 
 func (ct *CombinedTeam) DisplayPricesToBuildOn(pricesToBuild map[*ConcreteTeam]int, anArea float64) {
 	for _, team := range ct.teams {
-		team.DisplayPricesToBuildOn(pricesToBuild, ct.subteamEqualArea(anArea))
+		team.DisplayPricesToBuildOn(pricesToBuild, ct.areaDividedQuantityOfTeamMembers(anArea))
 	}
 }
 
 func (ct *CombinedTeam) CheapestTeamToBuild(anArea float64) Team {
 	return generics.MinimizeElementByComparer(ct.teams, func(a, b Team) bool {
-		return a.PriceToBuild(ct.subteamEqualArea(anArea)) < b.PriceToBuild(ct.subteamEqualArea(anArea))
+		equalArea := ct.areaDividedQuantityOfTeamMembers(anArea)
+		teamAPrice := a.PriceToBuild(equalArea)
+		teamBPrice := b.PriceToBuild(equalArea)
+		return teamAPrice < teamBPrice
 	})
 }
 
 func (ct *CombinedTeam) FastestTeamToBuild(anArea float64) Team {
 	return generics.MinimizeElementByComparer(ct.teams, func(a, b Team) bool {
-		return a.DaysToBuild(ct.subteamEqualArea(anArea)) < b.DaysToBuild(ct.subteamEqualArea(anArea))
+		equalArea := ct.areaDividedQuantityOfTeamMembers(anArea)
+		teamADays := a.DaysToBuild(equalArea)
+		teamBDays := b.DaysToBuild(equalArea)
+		return teamADays < teamBDays
 	})
 }
 
-func (ct *CombinedTeam) subteamEqualArea(anArea float64) float64 {
+func (ct *CombinedTeam) maxDaysToBuildTheSameAreaBetweenSubteams(anArea float64) int {
+	return generics.MaxMapped(ct.teams, func(team Team) int { return team.DaysToBuild(anArea) })
+}
+
+func (ct *CombinedTeam) areaDividedQuantityOfTeamMembers(anArea float64) float64 {
 	return anArea / float64(len(ct.teams))
 }
 
